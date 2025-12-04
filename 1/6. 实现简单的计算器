@@ -1,0 +1,49 @@
+import java.util.Scanner;
+public class Number {
+    static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("请输入第一个数字：");
+        double a = scanner.nextDouble();
+        System.out.println("请输入运算符号:");
+        String OP = scanner.next();
+        char op = OP.charAt(0);
+        System.out.println("请输入第二个数字：");
+        double b = scanner.nextInt();
+        Suanfa(a,op,b);
+        scanner.close();
+    }
+    public static void Suanfa(double a,char op,double b){
+        double result;
+        boolean T=true;
+        switch (op){
+            case '+':
+                result=a+b;
+                System.out.println(result);
+                break;
+            case '-':
+                result=a-b;
+                System.out.println(result);
+                break;
+            case '*':
+                result=a*b;
+                System.out.println(result);
+                break;
+            case '/':
+                if(b==0){
+                    System.out.println("除数不能为0，程序出错");
+                    T=false;
+                    result=0;
+                }else {
+                    result = a / b;
+                    System.out.println(result);
+                }
+                break;
+            default:
+                System.out.println("不支持运算符："+op+"的运算");
+                T=false;
+                result=0;
+
+        }
+
+    }
+}
