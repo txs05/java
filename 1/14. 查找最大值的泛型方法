@@ -1,0 +1,32 @@
+public class GenericMaxFinder {
+
+    // 泛型方法：查找任意类型数组的最大值
+    // 类型参数 T 必须实现 Comparable 接口
+    public static <T extends Comparable<T>> T findMax(T[] array) {
+        if (array == null || array.length == 0) {
+            throw new IllegalArgumentException("数组不能为空");
+        }
+
+        T max = array[0];
+        for (int i = 1; i < array.length; i++) {
+            if (array[i].compareTo(max) > 0) {
+                max = array[i];
+            }
+        }
+        return max;
+    }
+
+    public static void main(String[] args) {
+        // 测试整数数组
+        Integer[] intArray = {1, 5, 3, 9, 2};
+        System.out.println("整数数组最大值: " + findMax(intArray));
+
+        // 测试浮点数数组
+        Double[] doubleArray = {1.5, 3.2, 2.8, 4.1};
+        System.out.println("浮点数数组最大值: " + findMax(doubleArray));
+
+        // 测试字符串数组
+        String[] strArray = {"apple", "banana", "orange", "pear"};
+        System.out.println("字符串数组最大值: " + findMax(strArray));
+    }
+}
