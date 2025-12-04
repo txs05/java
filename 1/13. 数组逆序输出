@@ -1,0 +1,18 @@
+public class ArrayReverse {
+    public static void main(String[] args) {
+        // 定义整型数组
+        int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+        System.out.println("原始数组:");
+        for (int num : numbers) {
+            System.out.print(num + " ");
+        }
+
+        System.out.println("\n逆序输出:");
+
+        // 逆序输出
+        for (int i = numbers.length - 1; i >= 0; i--) {
+            System.out.print(numbers[i] + " ");
+        }
+    }
+}
