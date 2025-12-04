@@ -1,0 +1,15 @@
+public class Circle {
+     double r=5.0;
+     double s=3.14*r*r;
+
+
+     public void S(){
+         System.out.println("圆的面积是"+s);
+     }
+
+    static void main(String[] args) {
+        Circle circle = new Circle();
+        circle.S();
+    }
+
+}
