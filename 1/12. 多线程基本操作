@@ -1,0 +1,39 @@
+public class MultiThreadDemo2 {
+    public static void main(String[] args) {
+        // 创建两个Runnable任务
+        Runnable numberTask = new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 1; i <= 10; i++) {
+                    System.out.println("线程1 - 数字: " + i);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+        Runnable letterTask = new Runnable() {
+            @Override
+            public void run() {
+                for (char c = 'A'; c <= 'J'; c++) {
+                    System.out.println("线程2 - 字母: " + c);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+        // 创建并启动线程
+        Thread thread1 = new Thread(numberTask, "数字线程");
+        Thread thread2 = new Thread(letterTask, "字母线程");
+
+        thread1.start();
+        thread2.start();
+    }
+}
