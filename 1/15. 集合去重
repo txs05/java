@@ -1,0 +1,24 @@
+import java.util.ArrayList;
+import java.util.HashSet;
+
+public class SimpleRemoveDuplicates {
+    public static void main(String[] args) {
+        // 创建带重复元素的ArrayList
+        ArrayList<Integer> numbers = new ArrayList<>();
+        numbers.add(1);
+        numbers.add(2);
+        numbers.add(2);
+        numbers.add(3);
+        numbers.add(4);
+        numbers.add(3);
+        numbers.add(5);
+
+        System.out.println("原始列表: " + numbers);
+
+        // 使用HashSet去重
+        HashSet<Integer> set = new HashSet<>(numbers);
+        ArrayList<Integer> uniqueNumbers = new ArrayList<>(set);
+
+        System.out.println("去重后列表: " + uniqueNumbers);
+    }
+}
