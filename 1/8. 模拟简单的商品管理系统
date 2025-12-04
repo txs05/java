@@ -1,0 +1,274 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+// 商品类
+class Product {
+    private String id;
+    private String name;
+    private double price;
+
+    // 构造方法
+    public Product(String id, String name, double price) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+    }
+
+    // Getter方法
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    // 显示商品信息
+    @Override
+    public String toString() {
+        return "ID: " + id + ", 名称: " + name + ", 价格: " + price + "元";
+    }
+}
+
+// 商品管理系统主类
+public class SimpleProductManager {
+    private static List<Product> productList = new ArrayList<>();
+    private static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        // 初始化一些示例商品
+        initializeProducts();
+
+        // 显示操作菜单
+        while (true) {
+            System.out.println("\n=== 商品管理系统 ===");
+            System.out.println("1. 查看所有商品");
+            System.out.println("2. 添加商品");
+            System.out.println("3. 按ID查询商品");
+            System.out.println("4. 退出系统");
+            System.out.print("请选择操作: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // 消耗换行符
+
+            switch (choice) {
+                case 1:
+                    showAllProducts();
+                    break;
+                case 2:
+                    addProduct();
+                    break;
+                case 3:
+                    searchProduct();
+                    break;
+                case 4:
+                    System.out.println("感谢使用，再见！");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("无效的选择！");
+            }
+        }
+    }
+
+    // 初始化商品列表
+    private static void initializeProducts() {
+        productList.add(new Product("P001", "苹果", 5.0));
+        productList.add(new Product("P002", "香蕉", 3.0));
+        productList.add(new Product("P003", "牛奶", 8.5));
+    }
+
+    // 显示所有商品
+    private static void showAllProducts() {
+        if (productList.isEmpty()) {
+            System.out.println("商品列表为空！");
+            return;
+        }
+
+        System.out.println("\n=== 所有商品 ===");
+        for (Product product : productList) {
+            System.out.println(product);
+        }
+    }
+
+    // 添加商品
+    private static void addProduct() {
+        System.out.print("输入商品ID: ");
+        String id = scanner.nextLine();
+
+        System.out.print("输入商品名称: ");
+        String name = scanner.nextLine();
+
+        System.out.print("输入商品价格: ");
+        double price = scanner.nextDouble();
+        scanner.nextLine(); // 消耗换行符
+
+        // 创建新商品并添加到列表
+        Product newProduct = new Product(id, name, price);
+        productList.add(newProduct);
+
+        System.out.println("商品添加成功！");
+    }
+
+    // 查询商品
+    private static void searchProduct() {
+        System.out.print("输入要查询的商品ID: ");
+        String searchId = scanner.nextLine();
+
+        boolean found = false;
+        for (Product product : productList) {
+            if (product.getId().equals(searchId)) {
+                System.out.println("找到商品: " + product);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            System.out.println("未找到ID为 " + searchId + " 的商品");
+        }
+    }
+}
+
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+// 商品类
+class Product {
+    private String id;
+    private String name;
+    private double price;
+
+    // 构造方法
+    public Product(String id, String name, double price) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+    }
+
+    // Getter方法
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    // 显示商品信息
+    @Override
+    public String toString() {
+        return "ID: " + id + ", 名称: " + name + ", 价格: " + price + "元";
+    }
+}
+
+// 商品管理系统主类
+public class SimpleProductManager {
+    private static List<Product> productList = new ArrayList<>();
+    private static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        // 初始化一些示例商品
+        initializeProducts();
+
+        // 显示操作菜单
+        while (true) {
+            System.out.println("\n=== 商品管理系统 ===");
+            System.out.println("1. 查看所有商品");
+            System.out.println("2. 添加商品");
+            System.out.println("3. 按ID查询商品");
+            System.out.println("4. 退出系统");
+            System.out.print("请选择操作: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // 消耗换行符
+
+            switch (choice) {
+                case 1:
+                    showAllProducts();
+                    break;
+                case 2:
+                    addProduct();
+                    break;
+                case 3:
+                    searchProduct();
+                    break;
+                case 4:
+                    System.out.println("感谢使用，再见！");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("无效的选择！");
+            }
+        }
+    }
+
+    // 初始化商品列表
+    private static void initializeProducts() {
+        productList.add(new Product("P001", "苹果", 5.0));
+        productList.add(new Product("P002", "香蕉", 3.0));
+        productList.add(new Product("P003", "牛奶", 8.5));
+    }
+
+    // 显示所有商品
+    private static void showAllProducts() {
+        if (productList.isEmpty()) {
+            System.out.println("商品列表为空！");
+            return;
+        }
+
+        System.out.println("\n=== 所有商品 ===");
+        for (Product product : productList) {
+            System.out.println(product);
+        }
+    }
+
+    // 添加商品
+    private static void addProduct() {
+        System.out.print("输入商品ID: ");
+        String id = scanner.nextLine();
+
+        System.out.print("输入商品名称: ");
+        String name = scanner.nextLine();
+
+        System.out.print("输入商品价格: ");
+        double price = scanner.nextDouble();
+        scanner.nextLine(); // 消耗换行符
+
+        // 创建新商品并添加到列表
+        Product newProduct = new Product(id, name, price);
+        productList.add(newProduct);
+
+        System.out.println("商品添加成功！");
+    }
+
+    // 查询商品
+    private static void searchProduct() {
+        System.out.print("输入要查询的商品ID: ");
+        String searchId = scanner.nextLine();
+
+        boolean found = false;
+        for (Product product : productList) {
+            if (product.getId().equals(searchId)) {
+                System.out.println("找到商品: " + product);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            System.out.println("未找到ID为 " + searchId + " 的商品");
+        }
+    }
+}
