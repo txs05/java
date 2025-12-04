@@ -1,0 +1,51 @@
+package yichang;
+
+// 自定义异常类：负数异常
+class NegativeNumberException extends Exception {
+    // 带错误消息的构造方法
+    public NegativeNumberException(String message) {
+        super(message);
+    }
+
+    // 带错误消息和原因的构造方法
+    public NegativeNumberException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    // 默认构造方法
+    public NegativeNumberException() {
+        super("不能输入负数！");
+    }
+}
+
+package yichang;
+
+import java.util.Scanner;
+
+class NumberValidator {
+    private Scanner scanner = new Scanner(System.in);
+
+    // 验证输入的数字是否为负数
+    public void validateNumber() {
+        try {
+            System.out.print("请输入一个非负数: ");
+            double number = scanner.nextDouble();
+
+            if (number < 0) {
+                throw new NegativeNumberException("您输入了负数: " + number);
+            }
+
+            System.out.println("输入正确: " + number);
+
+        } catch (NegativeNumberException e) {
+            System.out.println("错误: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("输入错误: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        NumberValidator validator = new NumberValidator();
+        validator.validateNumber();
+    }
+}
