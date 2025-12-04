@@ -1,0 +1,49 @@
+package ranshediaoyong;
+
+class BankAccount {
+    private double balance;
+
+    public BankAccount(double balance) {
+        this.balance = balance;
+    }
+
+    public void deposit(double amount) {
+        balance += amount;
+        System.out.println("存款成功！金额: " + amount + ", 余额: " + balance);
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+}
+
+package ranshediaoyong;
+
+import java.lang.reflect.Method;
+
+public class ReflectionDemo {
+    public static void main(String[] args) {
+        try {
+            // 1. 创建BankAccount对象
+            BankAccount account = new BankAccount(1000.0);
+            System.out.println("初始余额: " + account.getBalance());
+
+            // 2. 获取BankAccount的Class对象
+            Class<?> clazz = BankAccount.class;
+
+            // 3. 获取deposit方法
+            // deposit方法需要一个double类型的参数
+            Method depositMethod = clazz.getMethod("deposit", double.class);
+
+            // 4. 通过反射调用deposit方法
+            double depositAmount = 500.0;
+            depositMethod.invoke(account, depositAmount);
+
+            // 5. 验证调用结果
+            System.out.println("调用后余额: " + account.getBalance());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
