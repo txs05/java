@@ -1,0 +1,52 @@
+import java.io.*;
+import java.util.Scanner;
+
+public class FileReadWrite {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        String fileName = "user_input.txt";
+
+        try {
+            // 1. 获取用户输入
+            System.out.println("请输入要写入文件的内容:");
+            String userInput = scanner.nextLine();
+
+            // 2. 写入文件
+            System.out.println("正在写入文件...");
+            writeToFile(fileName, userInput);
+            System.out.println("内容已成功写入文件: " + fileName);
+
+            // 3. 读取文件
+            System.out.println("\n从文件中读取的内容:");
+            String content = readFromFile(fileName);
+            System.out.println(content);
+
+        } catch (IOException e) {
+            System.out.println("文件操作错误: " + e.getMessage());
+        } finally {
+            scanner.close();
+        }
+    }
+
+    // 写入文件的方法
+    private static void writeToFile(String fileName, String content) throws IOException {
+        // 使用try-with-resources自动关闭流
+        try (FileWriter writer = new FileWriter(fileName)) {
+            writer.write(content);
+        }
+    }
+
+    // 读取文件的方法
+    private static String readFromFile(String fileName) throws IOException {
+        StringBuilder content = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+        }
+
+        return content.toString();
+    }
+}
