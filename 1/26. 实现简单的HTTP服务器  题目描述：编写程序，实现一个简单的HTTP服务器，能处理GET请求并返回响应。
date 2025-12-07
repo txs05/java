@@ -1,0 +1,92 @@
+import java.io.*;
+import java.net.*;
+import java.util.Date;
+
+public class SimpleHttpServer {
+    public static void main(String[] args) throws IOException {
+        // 创建ServerSocket监听8080端口
+        ServerSocket serverSocket = new ServerSocket(8080);
+        System.out.println("HTTP服务器已启动，监听端口 8080");
+        System.out.println("访问地址: http://localhost:8080/");
+        
+        while (true) {
+            try {
+                // 等待客户端连接
+                Socket clientSocket = serverSocket.accept();
+                
+                // 处理客户端请求
+                handleRequest(clientSocket);
+                
+            } catch (IOException e) {
+                System.err.println("处理请求出错: " + e.getMessage());
+            }
+        }
+    }
+    
+    private static void handleRequest(Socket clientSocket) throws IOException {
+        try (
+            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)
+        ) {
+            // 读取HTTP请求的第一行（请求行）
+            String requestLine = in.readLine();
+            if (requestLine == null) {
+                return;
+            }
+            
+            System.out.println("收到请求: " + requestLine);
+            
+            // 解析请求方法和路径
+            String[] requestParts = requestLine.split(" ");
+            String method = requestParts[0];
+            String path = requestParts[1];
+            
+            // 只处理GET请求
+            if ("GET".equals(method)) {
+                // 发送HTTP响应
+                sendHttpResponse(out, path);
+            } else {
+                sendError(out, 405, "Method Not Allowed");
+            }
+            
+        } finally {
+            clientSocket.close();
+        }
+    }
+    
+    private static void sendHttpResponse(PrintWriter out, String path) {
+        // 构建HTML内容
+        String html = "<html>" +
+                     "<head><title>Simple HTTP Server</title></head>" +
+                     "<body>" +
+                     "<h1>欢迎来到简易HTTP服务器</h1>" +
+                     "<p>当前时间: " + new Date() + "</p>" +
+                     "<p>请求路径: " + path + "</p>" +
+                     "<ul>" +
+                     "<li><a href='/'>主页</a></li>" +
+                     "<li><a href='/hello'>Hello页面</a></li>" +
+                     "<li><a href='/time'>时间页面</a></li>" +
+                     "<li><a href='/about'>关于页面</a></li>" +
+                     "</ul>" +
+                     "</body>" +
+                     "</html>";
+        
+        // 发送HTTP响应头
+        out.println("HTTP/1.1 200 OK");
+        out.println("Content-Type: text/html; charset=UTF-8");
+        out.println("Content-Length: " + html.getBytes().length);
+        out.println("Connection: close");
+        out.println(); // 空行分隔头部和主体
+        out.println(html);
+    }
+    
+    private static void sendError(PrintWriter out, int statusCode, String message) {
+        String errorHtml = "<html><body><h1>" + statusCode + " " + message + "</h1></body></html>";
+        
+        out.println("HTTP/1.1 " + statusCode + " " + message);
+        out.println("Content-Type: text/html");
+        out.println("Content-Length: " + errorHtml.getBytes().length);
+        out.println();
+        out.println(errorHtml);
+    }
+}
