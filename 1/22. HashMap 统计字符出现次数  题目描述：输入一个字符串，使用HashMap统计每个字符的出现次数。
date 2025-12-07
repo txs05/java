@@ -1,0 +1,38 @@
+import java.util.*;
+
+public class CharacterCount {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("请输入一个字符串: ");
+        String input = scanner.nextLine();
+
+        // 使用HashMap统计字符出现次数
+        Map<Character, Integer> charCountMap = new HashMap<>();
+
+        // 遍历字符串中的每个字符
+        for (char ch : input.toCharArray()) {
+            // 如果字符已经在Map中，次数+1；否则放入Map，次数为1
+            if (charCountMap.containsKey(ch)) {
+                charCountMap.put(ch, charCountMap.get(ch) + 1);
+            } else {
+                charCountMap.put(ch, 1);
+            }
+        }
+
+        // 输出统计结果
+        System.out.println("\n字符出现次数统计结果:");
+        System.out.println("====================");
+
+        // 按字符顺序排序输出
+        List<Character> sortedChars = new ArrayList<>(charCountMap.keySet());
+        Collections.sort(sortedChars);
+
+        for (char ch : sortedChars) {
+            int count = charCountMap.get(ch);
+            System.out.printf("'%c' : %d次\n", ch, count);
+        }
+
+        scanner.close();
+    }
+}
