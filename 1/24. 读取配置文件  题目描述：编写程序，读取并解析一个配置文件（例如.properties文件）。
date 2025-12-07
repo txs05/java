@@ -1,0 +1,73 @@
+# 应用配置
+app.name=MyApp
+app.version=1.0.0
+app.port=8080
+
+# 数据库配置
+db.url=jdbc:mysql://localhost:3306/mydb
+db.username=root
+db.password=123456
+import java.io.*;
+import java.util.Properties;
+
+public class ConfigReader {
+    public static void main(String[] args) {
+        // 1. 创建Properties对象
+        Properties props = new Properties();
+
+        try {
+            // 2. 创建配置文件（如果不存在）
+            File configFile = new File("config.properties");
+
+            if (!configFile.exists()) {
+                System.out.println("配置文件不存在，正在创建默认配置...");
+                createDefaultConfig(configFile);
+            }
+
+            // 3. 读取配置文件
+            FileInputStream fis = new FileInputStream(configFile);
+            props.load(fis);
+            fis.close();
+
+            // 4. 读取配置项
+            System.out.println("=== 配置文件内容 ===");
+
+            String appName = props.getProperty("app.name");
+            String appVersion = props.getProperty("app.version");
+            String appPort = props.getProperty("app.port");
+            String dbUrl = props.getProperty("db.url");
+            String dbUsername = props.getProperty("db.username");
+            String dbPassword = props.getProperty("db.password");
+
+            System.out.println("应用名称: " + appName);
+            System.out.println("应用版本: " + appVersion);
+            System.out.println("应用端口: " + appPort);
+            System.out.println("数据库URL: " + dbUrl);
+            System.out.println("数据库用户: " + dbUsername);
+            System.out.println("数据库密码: " + dbPassword);
+
+        } catch (IOException e) {
+            System.out.println("错误: " + e.getMessage());
+        }
+    }
+
+    // 创建默认配置文件的方法
+    private static void createDefaultConfig(File configFile) throws IOException {
+        Properties defaultProps = new Properties();
+
+        // 设置默认值
+        defaultProps.setProperty("app.name", "MyApp");
+        defaultProps.setProperty("app.version", "1.0.0");
+        defaultProps.setProperty("app.port", "8080");
+        defaultProps.setProperty("db.url", "jdbc:mysql://localhost:3306/mydb");
+        defaultProps.setProperty("db.username", "root");
+        defaultProps.setProperty("db.password", "123456");
+
+        // 保存到文件
+        FileOutputStream fos = new FileOutputStream(configFile);
+        defaultProps.store(fos, "应用程序配置文件");
+        fos.close();
+
+        System.out.println("配置文件创建成功: " + configFile.getAbsolutePath());
+    }
+}
