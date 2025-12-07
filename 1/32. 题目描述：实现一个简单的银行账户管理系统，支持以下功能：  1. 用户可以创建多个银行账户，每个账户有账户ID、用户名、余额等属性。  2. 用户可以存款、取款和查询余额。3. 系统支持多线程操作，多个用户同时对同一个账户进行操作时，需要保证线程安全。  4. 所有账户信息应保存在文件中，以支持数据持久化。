@@ -1,0 +1,382 @@
+package Yinhang30;
+
+import java.io.Serializable;
+
+public class BankAccount implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private String accountId;
+    private String userName;
+    private double balance;
+
+    public BankAccount(String accountId, String userName, double initialBalance) {
+        this.accountId = accountId;
+        this.userName = userName;
+        this.balance = initialBalance;
+    }
+
+    // 存款
+    public synchronized void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+            System.out.println(Thread.currentThread().getName() +
+                    ": 存款成功! 账户 " + accountId +
+                    " 存入: " + amount + ", 余额: " + balance);
+        } else {
+            System.out.println("存款金额必须大于0");
+        }
+    }
+
+    // 取款
+    public synchronized void withdraw(double amount) {
+        if (amount > 0) {
+            if (balance >= amount) {
+                balance -= amount;
+                System.out.println(Thread.currentThread().getName() +
+                        ": 取款成功! 账户 " + accountId +
+                        " 取出: " + amount + ", 余额: " + balance);
+            } else {
+                System.out.println(Thread.currentThread().getName() +
+                        ": 余额不足! 账户 " + accountId +
+                        " 余额: " + balance + ", 尝试取款: " + amount);
+            }
+        } else {
+            System.out.println("取款金额必须大于0");
+        }
+    }
+
+    // 查询余额
+    public synchronized void checkBalance() {
+        System.out.println(Thread.currentThread().getName() +
+                ": 账户 " + accountId +
+                " 余额: " + balance);
+    }
+
+    // Getters
+    public String getAccountId() { return accountId; }
+    public String getUserName() { return userName; }
+    public double getBalance() { return balance; }
+
+    @Override
+    public String toString() {
+        return "账户ID: " + accountId + ", 用户名: " + userName + ", 余额: " + balance;
+    }
+}
+package Yinhang30;
+
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
+
+public class BankSystem {
+    private Map<String, BankAccount> accounts;
+    private static final String DATA_FILE = "bank_data.dat";
+
+    public BankSystem() {
+        accounts = new ConcurrentHashMap<>();
+        loadAccountsFromFile();
+    }
+
+    // 创建账户
+    public synchronized void createAccount(String accountId, String userName, double initialBalance) {
+        if (!accounts.containsKey(accountId)) {
+            BankAccount account = new BankAccount(accountId, userName, initialBalance);
+            accounts.put(accountId, account);
+            saveAccountsToFile();
+            System.out.println("账户创建成功: " + account);
+        } else {
+            System.out.println("账户ID已存在: " + accountId);
+        }
+    }
+
+    // 获取账户（线程安全）
+    public BankAccount getAccount(String accountId) {
+        return accounts.get(accountId);
+    }
+
+    // 存款
+    public void deposit(String accountId, double amount) {
+        BankAccount account = accounts.get(accountId);
+        if (account != null) {
+            account.deposit(amount);
+            saveAccountsToFile();
+        } else {
+            System.out.println("账户不存在: " + accountId);
+        }
+    }
+
+    // 取款
+    public void withdraw(String accountId, double amount) {
+        BankAccount account = accounts.get(accountId);
+        if (account != null) {
+            account.withdraw(amount);
+            saveAccountsToFile();
+        } else {
+            System.out.println("账户不存在: " + accountId);
+        }
+    }
+
+    // 查询余额
+    public void checkBalance(String accountId) {
+        BankAccount account = accounts.get(accountId);
+        if (account != null) {
+            account.checkBalance();
+        } else {
+            System.out.println("账户不存在: " + accountId);
+        }
+    }
+
+    // 显示所有账户
+    public void displayAllAccounts() {
+        System.out.println("\n=== 所有账户信息 ===");
+        if (accounts.isEmpty()) {
+            System.out.println("暂无账户");
+        } else {
+            for (BankAccount account : accounts.values()) {
+                System.out.println(account);
+            }
+        }
+    }
+
+    // 保存账户到文件
+    private synchronized void saveAccountsToFile() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(
+                new FileOutputStream(DATA_FILE))) {
+            oos.writeObject(accounts);
+            // System.out.println("账户数据已保存到文件");
+        } catch (IOException e) {
+            System.err.println("保存账户数据失败: " + e.getMessage());
+        }
+    }
+
+    // 从文件加载账户
+    @SuppressWarnings("unchecked")
+    private synchronized void loadAccountsFromFile() {
+        File file = new File(DATA_FILE);
+        if (file.exists()) {
+            try (ObjectInputStream ois = new ObjectInputStream(
+                    new FileInputStream(DATA_FILE))) {
+                accounts = (Map<String, BankAccount>) ois.readObject();
+                System.out.println("从文件加载了 " + accounts.size() + " 个账户");
+            } catch (IOException | ClassNotFoundException e) {
+                System.err.println("加载账户数据失败: " + e.getMessage());
+            }
+        } else {
+            System.out.println("数据文件不存在，创建新的账户系统");
+        }
+    }
+
+    // 转账
+    public synchronized void transfer(String fromAccountId, String toAccountId, double amount) {
+        BankAccount fromAccount = accounts.get(fromAccountId);
+        BankAccount toAccount = accounts.get(toAccountId);
+
+        if (fromAccount == null || toAccount == null) {
+            System.out.println("转账失败：账户不存在");
+            return;
+        }
+
+        // 加锁顺序：先锁ID小的账户，防止死锁
+        String firstLock = fromAccountId.compareTo(toAccountId) < 0 ? fromAccountId : toAccountId;
+        String secondLock = fromAccountId.compareTo(toAccountId) < 0 ? toAccountId : fromAccountId;
+
+        synchronized (getAccount(firstLock)) {
+            synchronized (getAccount(secondLock)) {
+                if (fromAccount.getBalance() >= amount) {
+                    fromAccount.withdraw(amount);
+                    toAccount.deposit(amount);
+                    saveAccountsToFile();
+                    System.out.println(Thread.currentThread().getName() +
+                            ": 转账成功! 从 " + fromAccountId +
+                            " 转到 " + toAccountId + " 金额: " + amount);
+                } else {
+                    System.out.println("转账失败：余额不足");
+                }
+            }
+        }
+    }
+}
+package Yinhang30;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.Random;
+
+public class BankTest {
+    public static void main(String[] args) {
+        BankSystem bank = new BankSystem();
+        Random random = new Random();
+
+        System.out.println("========== 银行账户管理系统 ==========\n");
+
+        // 1. 创建一些测试账户
+        System.out.println("1. 创建账户:");
+        bank.createAccount("1001", "张三", 1000.0);
+        bank.createAccount("1002", "李四", 2000.0);
+        bank.createAccount("1003", "王五", 3000.0);
+        bank.createAccount("1004", "赵六", 1500.0);
+
+        bank.displayAllAccounts();
+
+        // 2. 创建线程池，模拟多用户同时操作
+        System.out.println("\n2. 模拟多线程操作（存款、取款、查询）:");
+        ExecutorService executor = Executors.newFixedThreadPool(5);
+
+        // 多个线程操作同一个账户
+        String targetAccount = "1001";
+
+        for (int i = 1; i <= 10; i++) {
+            final int threadId = i;
+            executor.execute(() -> {
+                try {
+                    Thread.sleep(random.nextInt(100)); // 随机延迟
+
+                    int operation = random.nextInt(3);
+                    double amount = random.nextInt(500) + 100;
+
+                    switch (operation) {
+                        case 0:
+                            bank.deposit(targetAccount, amount);
+                            break;
+                        case 1:
+                            bank.withdraw(targetAccount, amount);
+                            break;
+                        case 2:
+                            bank.checkBalance(targetAccount);
+                            break;
+                    }
+
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            });
+        }
+
+        // 3. 转账测试
+        System.out.println("\n3. 转账测试:");
+        executor.execute(() -> bank.transfer("1002", "1003", 500));
+        executor.execute(() -> bank.transfer("1003", "1004", 300));
+
+        // 4. 等待所有任务完成
+        executor.shutdown();
+        while (!executor.isTerminated()) {
+            // 等待所有任务完成
+        }
+
+        // 5. 显示最终账户状态
+        System.out.println("\n4. 最终账户状态:");
+        bank.displayAllAccounts();
+
+        // 6. 测试新会话（重新加载数据）
+        System.out.println("\n5. 模拟新会话（重新加载数据）:");
+        BankSystem newSessionBank = new BankSystem();
+        newSessionBank.displayAllAccounts();
+
+        System.out.println("\n=== 系统演示完成 ===");
+    }
+}
+package Yinhang30;
+
+import java.util.Scanner;
+
+public class BankConsole {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        BankSystem bank = new BankSystem();
+
+        System.out.println("欢迎使用银行账户管理系统");
+        System.out.println("======================");
+
+        while (true) {
+            System.out.println("\n请选择操作:");
+            System.out.println("1. 创建账户");
+            System.out.println("2. 存款");
+            System.out.println("3. 取款");
+            System.out.println("4. 查询余额");
+            System.out.println("5. 转账");
+            System.out.println("6. 显示所有账户");
+            System.out.println("7. 退出系统");
+            System.out.print("请输入选择 (1-7): ");
+
+            int choice;
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("请输入有效数字!");
+                continue;
+            }
+
+            switch (choice) {
+                case 1: // 创建账户
+                    System.out.print("请输入账户ID: ");
+                    String accountId = scanner.nextLine();
+                    System.out.print("请输入用户名: ");
+                    String userName = scanner.nextLine();
+                    System.out.print("请输入初始余额: ");
+                    try {
+                        double balance = Double.parseDouble(scanner.nextLine());
+                        bank.createAccount(accountId, userName, balance);
+                    } catch (NumberFormatException e) {
+                        System.out.println("金额格式错误!");
+                    }
+                    break;
+
+                case 2: // 存款
+                    System.out.print("请输入账户ID: ");
+                    accountId = scanner.nextLine();
+                    System.out.print("请输入存款金额: ");
+                    try {
+                        double amount = Double.parseDouble(scanner.nextLine());
+                        bank.deposit(accountId, amount);
+                    } catch (NumberFormatException e) {
+                        System.out.println("金额格式错误!");
+                    }
+                    break;
+
+                case 3: // 取款
+                    System.out.print("请输入账户ID: ");
+                    accountId = scanner.nextLine();
+                    System.out.print("请输入取款金额: ");
+                    try {
+                        double amount = Double.parseDouble(scanner.nextLine());
+                        bank.withdraw(accountId, amount);
+                    } catch (NumberFormatException e) {
+                        System.out.println("金额格式错误!");
+                    }
+                    break;
+
+                case 4: // 查询余额
+                    System.out.print("请输入账户ID: ");
+                    accountId = scanner.nextLine();
+                    bank.checkBalance(accountId);
+                    break;
+
+                case 5: // 转账
+                    System.out.print("请输入转出账户ID: ");
+                    String fromAccount = scanner.nextLine();
+                    System.out.print("请输入转入账户ID: ");
+                    String toAccount = scanner.nextLine();
+                    System.out.print("请输入转账金额: ");
+                    try {
+                        double amount = Double.parseDouble(scanner.nextLine());
+                        bank.transfer(fromAccount, toAccount, amount);
+                    } catch (NumberFormatException e) {
+                        System.out.println("金额格式错误!");
+                    }
+                    break;
+
+                case 6: // 显示所有账户
+                    bank.displayAllAccounts();
+                    break;
+
+                case 7: // 退出
+                    System.out.println("感谢使用，再见!");
+                    scanner.close();
+                    return;
+
+                default:
+                    System.out.println("无效选择，请重新输入!");
+            }
+        }
+    }
+}
