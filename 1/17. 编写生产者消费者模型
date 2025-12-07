@@ -1,0 +1,132 @@
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Random;
+
+public class ProducerConsumerExample {
+
+    public static void main(String[] args) {
+        // 创建共享的缓冲区
+        Buffer buffer = new Buffer(5);
+
+        // 创建生产者和消费者线程
+        Thread producer1 = new Thread(new Producer(buffer), "生产者1");
+        Thread producer2 = new Thread(new Producer(buffer), "生产者2");
+        Thread consumer1 = new Thread(new Consumer(buffer), "消费者1");
+        Thread consumer2 = new Thread(new Consumer(buffer), "消费者2");
+
+        // 启动线程
+        producer1.start();
+        producer2.start();
+        consumer1.start();
+        consumer2.start();
+    }
+}
+
+/**
+ * 共享缓冲区类
+ */
+class Buffer {
+    private final Queue<Integer> queue;  // 使用队列作为缓冲区
+    private final int maxSize;           // 缓冲区最大容量
+    private final Random random = new Random();
+
+    public Buffer(int size) {
+        this.maxSize = size;
+        this.queue = new LinkedList<>();
+    }
+
+    /**
+     * 生产者向缓冲区添加数据
+     */
+    public synchronized void produce() throws InterruptedException {
+        // 如果缓冲区已满，生产者等待
+        while (queue.size() == maxSize) {
+            System.out.println(Thread.currentThread().getName() + ": 缓冲区已满，等待中...");
+            wait();
+        }
+
+        // 生产一个随机数
+        int value = random.nextInt(100);
+        queue.add(value);
+
+        System.out.println(Thread.currentThread().getName() + ": 生产了数据 " + value +
+                "，当前缓冲区大小: " + queue.size());
+
+        // 通知所有等待的消费者
+        notifyAll();
+
+        // 模拟生产过程耗时
+        Thread.sleep(500);
+    }
+
+    /**
+     * 消费者从缓冲区取出数据
+     */
+    public synchronized void consume() throws InterruptedException {
+        // 如果缓冲区为空，消费者等待
+        while (queue.isEmpty()) {
+            System.out.println(Thread.currentThread().getName() + ": 缓冲区为空，等待中...");
+            wait();
+        }
+
+        // 消费数据
+        int value = queue.poll();
+
+        System.out.println(Thread.currentThread().getName() + ": 消费了数据 " + value +
+                "，当前缓冲区大小: " + queue.size());
+
+        // 通知所有等待的生产者
+        notifyAll();
+
+        // 模拟消费过程耗时
+        Thread.sleep(800);
+    }
+}
+
+/**
+ * 生产者类
+ */
+class Producer implements Runnable {
+    private final Buffer buffer;
+
+    public Producer(Buffer buffer) {
+        this.buffer = buffer;
+    }
+
+    @Override
+    public void run() {
+        try {
+            // 持续生产数据
+            while (true) {
+                buffer.produce();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.out.println(Thread.currentThread().getName() + " 被中断");
+        }
+    }
+}
+
+/**
+ * 消费者类
+ */
+class Consumer implements Runnable {
+    private final Buffer buffer;
+
+    public Consumer(Buffer buffer) {
+        this.buffer = buffer;
+    }
+
+    @Override
+    public void run() {
+        try {
+            // 持续消费数据
+            while (true) {
+                buffer.consume();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.out.println(Thread.currentThread().getName() + " 被中断");
+        }
+    }
+}
