@@ -1,0 +1,191 @@
+public interface Shape {
+    double calculateArea();    // 计算面积
+    double calculatePerimeter(); // 计算周长
+    String getShapeName();      // 获取图形名称
+    void displayInfo();         // 显示图形信息
+}
+public class Circle implements Shape {
+    private double radius;
+    private String name;
+    
+    public Circle(double radius) {
+        this.radius = radius;
+        this.name = "圆形";
+    }
+    
+    @Override
+    public double calculateArea() {
+        return Math.PI * radius * radius;
+    }
+    
+    @Override
+    public double calculatePerimeter() {
+        return 2 * Math.PI * radius;
+    }
+    
+    @Override
+    public String getShapeName() {
+        return name;
+    }
+    
+    @Override
+    public void displayInfo() {
+        System.out.println("=== " + name + " ===");
+        System.out.printf("半径: %.2f\n", radius);
+        System.out.printf("面积: %.2f\n", calculateArea());
+        System.out.printf("周长: %.2f\n", calculatePerimeter());
+    }
+}
+public class Rectangle implements Shape {
+    private double length;
+    private double width;
+    private String name;
+    
+    public Rectangle(double length, double width) {
+        this.length = length;
+        this.width = width;
+        this.name = "矩形";
+    }
+    
+    @Override
+    public double calculateArea() {
+        return length * width;
+    }
+    
+    @Override
+    public double calculatePerimeter() {
+        return 2 * (length + width);
+    }
+    
+    @Override
+    public String getShapeName() {
+        return name;
+    }
+    
+    @Override
+    public void displayInfo() {
+        System.out.println("=== " + name + " ===");
+        System.out.printf("长: %.2f, 宽: %.2f\n", length, width);
+        System.out.printf("面积: %.2f\n", calculateArea());
+        System.out.printf("周长: %.2f\n", calculatePerimeter());
+    }
+}
+public class Triangle implements Shape {
+    private double sideA;
+    private double sideB;
+    private double sideC;
+    private String name;
+    
+    public Triangle(double sideA, double sideB, double sideC) {
+        // 检查是否能构成三角形
+        if (!isValidTriangle(sideA, sideB, sideC)) {
+            throw new IllegalArgumentException("不能构成三角形！");
+        }
+        this.sideA = sideA;
+        this.sideB = sideB;
+        this.sideC = sideC;
+        this.name = "三角形";
+    }
+    
+    private boolean isValidTriangle(double a, double b, double c) {
+        return a + b > c && a + c > b && b + c > a;
+    }
+    
+    @Override
+    public double calculateArea() {
+        // 使用海伦公式计算面积
+        double p = calculatePerimeter() / 2;
+        return Math.sqrt(p * (p - sideA) * (p - sideB) * (p - sideC));
+    }
+    
+    @Override
+    public double calculatePerimeter() {
+        return sideA + sideB + sideC;
+    }
+    
+    @Override
+    public String getShapeName() {
+        return name;
+    }
+    
+    @Override
+    public void displayInfo() {
+        System.out.println("=== " + name + " ===");
+        System.out.printf("边长: %.2f, %.2f, %.2f\n", sideA, sideB, sideC);
+        System.out.printf("面积: %.2f\n", calculateArea());
+        System.out.printf("周长: %.2f\n", calculatePerimeter());
+    }
+}
+import java.util.*;
+
+public class ShapeManager {
+    public static void main(String[] args) {
+        // 创建图形集合
+        List<Shape> shapes = new ArrayList<>();
+        
+        // 添加不同图形（多态特性）
+        shapes.add(new Circle(5.0));
+        shapes.add(new Rectangle(4.0, 6.0));
+        shapes.add(new Triangle(3.0, 4.0, 5.0));
+        shapes.add(new Circle(3.5));
+        shapes.add(new Rectangle(2.5, 3.5));
+        
+        System.out.println("========== 图形计算系统 ==========\n");
+        
+        // 1. 显示所有图形信息
+        System.out.println("1. 所有图形信息:");
+        for (Shape shape : shapes) {
+            shape.displayInfo();
+            System.out.println();
+        }
+        
+        // 2. 计算总面积和总周长
+        System.out.println("2. 统计信息:");
+        double totalArea = 0;
+        double totalPerimeter = 0;
+        
+        for (Shape shape : shapes) {
+            totalArea += shape.calculateArea();
+            totalPerimeter += shape.calculatePerimeter();
+        }
+        
+        System.out.printf("图形总数: %d\n", shapes.size());
+        System.out.printf("总面积: %.2f\n", totalArea);
+        System.out.printf("总周长: %.2f\n", totalPerimeter);
+        
+        // 3. 按面积排序
+        System.out.println("\n3. 按面积排序:");
+        shapes.sort((s1, s2) -> 
+            Double.compare(s1.calculateArea(), s2.calculateArea()));
+        
+        for (Shape shape : shapes) {
+            System.out.printf("%s: 面积=%.2f\n", 
+                shape.getShapeName(), shape.calculateArea());
+        }
+        
+        // 4. 查找最大面积的图形
+        System.out.println("\n4. 面积最大的图形:");
+        Shape maxAreaShape = shapes.get(shapes.size() - 1);
+        maxAreaShape.displayInfo();
+        
+        // 5. 按类型统计
+        System.out.println("\n5. 按图形类型统计:");
+        Map<String, Integer> typeCount = new HashMap<>();
+        for (Shape shape : shapes) {
+            String name = shape.getShapeName();
+            typeCount.put(name, typeCount.getOrDefault(name, 0) + 1);
+        }
+        
+        for (Map.Entry<String, Integer> entry : typeCount.entrySet()) {
+            System.out.printf("%s: %d个\n", entry.getKey(), entry.getValue());
+        }
+        
+        // 6. 测试三角形异常情况
+        System.out.println("\n6. 测试三角形异常:");
+        try {
+            Shape invalidTriangle = new Triangle(1, 2, 10);
+        } catch (IllegalArgumentException e) {
+            System.out.println("错误: " + e.getMessage());
+        }
+    }
+}
