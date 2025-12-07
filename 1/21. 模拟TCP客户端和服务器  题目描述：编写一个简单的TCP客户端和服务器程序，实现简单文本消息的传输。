@@ -1,0 +1,82 @@
+package TCP;
+
+import java.io.*;
+import java.net.*;
+import java.util.Scanner;
+
+public class SimpleClient {
+    public static void main(String[] args) throws IOException {
+        // 连接服务器
+        Socket socket = new Socket("127.0.0.1", 8888);
+        System.out.println("已连接到服务器");
+
+        // 获取输入输出流
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+        Scanner scanner = new Scanner(System.in);
+
+        // 通信循环
+        String message;
+        while (true) {
+            // 发送消息
+            System.out.print("请输入消息: ");
+            message = scanner.nextLine();
+            out.println(message);
+
+            // 接收服务器回复
+            String response = in.readLine();
+            System.out.println("服务器回复: " + response);
+
+            // 如果输入"bye"，结束通信
+            if ("bye".equalsIgnoreCase(message)) {
+                break;
+            }
+        }
+
+        // 关闭资源
+        scanner.close();
+        in.close();
+        out.close();
+        socket.close();
+        System.out.println("客户端关闭");
+    }
+}
+import java.io.*;
+import java.net.*;
+
+public class SimpleServer {
+    public static void main(String[] args) throws IOException {
+        // 创建ServerSocket，监听8888端口
+        ServerSocket serverSocket = new ServerSocket(8888);
+        System.out.println("服务器启动，等待客户端连接...");
+        
+        // 等待客户端连接
+        Socket socket = serverSocket.accept();
+        System.out.println("客户端已连接: " + socket.getInetAddress());
+        
+        // 获取输入输出流
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+        
+        // 通信循环
+        String message;
+        while ((message = in.readLine()) != null) {
+            System.out.println("收到客户端消息: " + message);
+            
+            // 回复客户端
+            out.println("服务器已收到: " + message);
+            
+            // 如果客户端发送"bye"，结束通信
+            if ("bye".equalsIgnoreCase(message)) {
+                break;
+            }
+        }
+        
+        // 关闭资源
+        in.close();
+        out.close();
+        socket.close();
+        serverSocket.close();
+        System.out.println("服务器关闭");
+    }
+}
