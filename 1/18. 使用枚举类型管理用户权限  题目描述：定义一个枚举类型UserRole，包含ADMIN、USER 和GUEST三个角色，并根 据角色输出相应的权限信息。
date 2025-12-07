@@ -1,0 +1,112 @@
+public class UserRoleExample {
+
+    // 定义用户角色枚举
+    public enum UserRole {
+        // 枚举常量，每个都有权限和描述信息
+        ADMIN("管理员", new String[]{"创建用户", "删除用户", "修改权限", "查看所有数据", "系统设置"}),
+        USER("普通用户", new String[]{"查看个人数据", "修改个人信息", "上传文件", "发表评论"}),
+        GUEST("访客", new String[]{"浏览公开内容", "查看帮助文档"});
+
+        // 枚举的属性
+        private final String roleName;         // 角色名称
+        private final String[] permissions;    // 权限列表
+
+        // 枚举的构造方法（私有）
+        UserRole(String roleName, String[] permissions) {
+            this.roleName = roleName;
+            this.permissions = permissions;
+        }
+
+        // 获取角色名称
+        public String getRoleName() {
+            return roleName;
+        }
+
+        // 获取权限列表
+        public String[] getPermissions() {
+            return permissions;
+        }
+
+        // 检查是否拥有某个权限
+        public boolean hasPermission(String permission) {
+            for (String perm : permissions) {
+                if (perm.equals(permission)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // 显示角色权限信息
+        public void displayPermissions() {
+            System.out.println("=== " + roleName + "权限列表 ===");
+            System.out.println("角色类型: " + this.name());
+            System.out.println("权限数量: " + permissions.length);
+            System.out.println("具体权限:");
+            for (int i = 0; i < permissions.length; i++) {
+                System.out.println("  " + (i + 1) + ". " + permissions[i]);
+            }
+            System.out.println();
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println("========== 用户权限管理系统 ==========\n");
+
+        // 1. 遍历所有角色并显示权限
+        System.out.println("【所有角色权限概览】");
+        for (UserRole role : UserRole.values()) {
+            role.displayPermissions();
+        }
+
+        // 2. 检查具体用户的权限
+        System.out.println("【权限检查示例】");
+        UserRole user1 = UserRole.ADMIN;
+        UserRole user2 = UserRole.USER;
+
+        System.out.println("1. " + user1.getRoleName() + "是否能删除用户: " +
+                user1.hasPermission("删除用户"));
+        System.out.println("2. " + user2.getRoleName() + "是否能删除用户: " +
+                user2.hasPermission("删除用户"));
+        System.out.println("3. " + user1.getRoleName() + "是否能发表评论: " +
+                user1.hasPermission("发表评论"));
+        System.out.println("4. " + UserRole.GUEST.getRoleName() + "是否能浏览公开内容: " +
+                UserRole.GUEST.hasPermission("浏览公开内容"));
+
+        // 3. 使用switch处理不同角色
+        System.out.println("\n【角色处理示例】");
+        UserRole currentUser = UserRole.USER;
+
+        switch (currentUser) {
+            case ADMIN:
+                System.out.println("欢迎管理员，您拥有最高权限");
+                System.out.println("可以进入管理后台");
+                break;
+            case USER:
+                System.out.println("欢迎用户，您可以访问个人中心");
+                System.out.println("可以修改个人资料");
+                break;
+            case GUEST:
+                System.out.println("欢迎访客，您可以浏览公开内容");
+                System.out.println("请注册成为用户获取更多功能");
+                break;
+        }
+
+        // 4. 根据输入创建用户
+        System.out.println("\n【根据角色创建用户】");
+        createUser("txs", UserRole.ADMIN);
+        createUser("gx", UserRole.USER);
+        createUser("gy", UserRole.GUEST);
+    }
+
+    // 创建用户的方法
+    private static void createUser(String username, UserRole role) {
+        System.out.println("创建用户: " + username);
+        System.out.println("分配角色: " + role.getRoleName());
+        System.out.println("初始权限:");
+        for (String permission : role.getPermissions()) {
+            System.out.println("  - " + permission);
+        }
+        System.out.println("---");
+    }
+}
