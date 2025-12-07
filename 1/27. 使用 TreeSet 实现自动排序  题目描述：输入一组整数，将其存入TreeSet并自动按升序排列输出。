@@ -1,0 +1,31 @@
+import java.util.*;
+
+public class TreeSetSort {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("请输入整数个数:");
+        int n = scanner.nextInt();
+
+        // 创建TreeSet（自动升序排序）
+        TreeSet<Integer> treeSet = new TreeSet<>();
+
+        System.out.println("请输入" + n + "个整数:");
+        for (int i = 0; i < n; i++) {
+            int num = scanner.nextInt();
+            treeSet.add(num);
+        }
+
+        // 输出排序结果
+        System.out.println("\n自动排序后的结果（升序）:");
+        for (int num : treeSet) {
+            System.out.print(num + " ");
+        }
+
+        // 检查是否遗漏了数字（TreeSet会自动去重）
+        System.out.println("\n\n注意：TreeSet会自动去重！");
+        System.out.println("如果要保留重复数字，请使用ArrayList并排序。");
+
+        scanner.close();
+    }
+}
